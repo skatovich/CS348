@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignments per Student Report</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .due-date {
+            color: red; /* Highlight overdue assignments */
+        }
+    </style>
+</head>
+<body>
+    <h1>Assignments per Student Report</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Student Name</th>
+                <th>Assignments</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in report_data %}
+                <tr>
+                    <td>{{ entry.student_id }}</td>
+                    <td>{{ entry.student_name }}</td>
+                    <td>
+                        <ul>
+                            {% for assignment in entry.assignments %}
+                                <li>
+                                    {{ assignment.title }} - Due in {{ assignment.days_until_due }} days
+                                    {% if assignment.days_until_due < 0 %}
+                                        <span class="due-date">(Overdue)</span>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="/" class="btn btn-primary">Back to Home</a>
+</body>
+</html>

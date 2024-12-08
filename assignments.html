@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Assignments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        input, button {
+            padding: 10px;
+            margin: 5px 0;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+        #assignmentsList {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Manage Assignments</h1>
+
+    <h2>Create Assignment</h2>
+    <input type="text" id="assignmentTitle" placeholder="Title" required>
+    <input type="date" id="assignmentDueDate" required>
+    <input type="text" id="assignmentStatus" placeholder="Status" required>
+    <input type="number" id="assignmentStudentId" placeholder="Student ID" required>
+    <button onclick="createAssignment()">Add Assignment</button>
+
+    <h2>Assignments</h2>
+    <ul id="assignmentsList"></ul>
+
+    <script>
+        async function fetchAssignments() {
+            const response = await fetch('/assignments');
+            const assignments = await response.json();
+            const assignmentsList = document.getElementById('assignmentsList');
+            assignmentsList.innerHTML = ''; // Clear the list
+
+            assignments.forEach(assignment => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ID: ${assignment.id}, Title: ${assignment.title}, Due Date: ${assignment.due_date}, Status: ${assignment.status}, Student ID: ${assignment.student_id}
+                    <button onclick="deleteAssignment(${assignment.id})">Delete</button>
+                    <button onclick="editAssignment(${assignment.id})">Edit</button>
+                `;
+                assignmentsList.appendChild(li);
+            });
+        }
+
+        async function createAssignment() {
+            const title = document.getElementById('assignmentTitle').value;
+            const dueDate = document.getElementById('assignmentDueDate').value;
+            const status = document.getElementById('assignmentStatus').value;
+            const studentId = document.getElementById('assignmentStudentId').value;
+
+            const response = await fetch('/assignments', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ title, due_date: dueDate, status, student_id: studentId })
+            });
+
+            if (response.ok) {
+                fetchAssignments(); // Refresh the assignments list
+            } else {
+                const error = await response.json();
+                alert('Error adding assignment: ' + error.error);
+            }
+        }
+
+        async function deleteAssignment(id) {
+            if (confirm("Are you sure you want to delete this assignment?")) {
+                const response = await fetch(`/assignments/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    fetchAssignments(); // Refresh the assignments list
+                } else {
+                    const error = await response.json();
+                    alert('Error deleting assignment: ' + error.error);
+                }
+            }
+        }
+
+        async function editAssignment(id) {
+            const newTitle = prompt("Enter new title:");
+            const newDueDate = prompt("Enter new due date (YYYY-MM-DD):");
+            const newStatus = prompt("Enter new status:");
+
+            if (newTitle && newDueDate && newStatus) {
+                const response = await fetch(`/assignments/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ title: newTitle, due_date: newDueDate, status: newStatus })
+                });
+
+                if (response.ok) {
+                    fetchAssignments(); // Refresh the assignments list
+                } else {
+                    const error = await response.json();
+                    alert('Error updating assignment: ' + error.error);
+                }
+            } else {
+                alert("All fields must be filled.");
+            }
+        }
+
+        // Fetch assignments when the page loads
+        window.onload = function() {
+            fetchAssignments();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!-- templates/students.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Students</title>
+    <style>
+        /* Your existing styles */
+    </style>
+    <script>
+        async function fetchStudents() {
+            const response = await fetch('/students');
+            const students = await response.json();
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = ''; // Clear the list
+
+            students.forEach(student => {
+                const li = document.createElement('li');
+                li.textContent = `ID: ${student.id}, Name: ${student.name}, Email: ${student.email}`;
+                studentsList.appendChild(li);
+            });
+        }
+
+        // Fetch students on page load
+        window.onload = fetchStudents;
+    </script>
+</head>
+<body>
+    <h1>Students</h1>
+    <ul id="studentsList"></ul>
+    <button onclick="location.href='index.html'">Back to Home</button>
+</body>
+</html>
